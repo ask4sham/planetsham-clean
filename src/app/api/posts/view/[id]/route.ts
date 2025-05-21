@@ -1,7 +1,9 @@
 import { NextRequest } from "next/server";
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
-  const { id } = params;
+export async function POST(req: NextRequest) {
+  const url = new URL(req.url);
+  const id = url.pathname.split("/").pop();
+
   console.log("Received POST for ID:", id);
 
   // Add your logic here, like saving a view count or analytics event
