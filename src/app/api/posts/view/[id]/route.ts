@@ -1,30 +1,12 @@
-import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { NextRequest } from "next/server";
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+  const { id } = params;
+  console.log("Received POST for ID:", id);
 
-  const blogFilePath = path.join(process.cwd(), "public", "blog.json");
+  // Add your logic here, like saving a view count or analytics event
 
-  try {
-    const index = parseInt(context.params.index);
-    if (isNaN(index)) {
-      return NextResponse.json({ error: "Invalid index" }, { status: 400 });
-    }
-
-    const raw = fs.readFileSync(blogFilePath, "utf-8");
-    const posts = JSON.parse(raw);
-
-    if (!Array.isArray(posts) || !posts[index]) {
-      return NextResponse.json({ error: "Post not found" }, { status: 404 });
-    }
-
-    posts[index].views = (posts[index].views || 0) + 1;
-
-    fs.writeFileSync(blogFilePath, JSON.stringify(posts, null, 2));
-    return NextResponse.json({ success: true, views: posts[index].views });
-  } catch (error) {
-    console.error("❌ View increment error:", error);
-    return NextResponse.json({ error: "Failed to update views" }, { status: 500 });
-  }
+  return new Response(JSON.stringify({ message: `View recorded for ID: ${id}` }), {
+    status: 200,
+  });
 }
