@@ -2,10 +2,8 @@ import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 
-export async function POST(
-  req: Request,
-  context: { params: { index: string } }
-) {
+export async function POST(req: Request, { params }: { params: { id: string } }) {
+
   const blogFilePath = path.join(process.cwd(), "public", "blog.json");
 
   try {
