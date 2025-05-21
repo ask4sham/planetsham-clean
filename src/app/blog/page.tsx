@@ -27,11 +27,12 @@ export default function BlogPage() {
   const [newPost, setNewPost] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // ✅ Safer alternative with [posts] dependency
   useEffect(() => {
     posts.forEach((_, index) => {
       fetch(`/api/posts/view/${index}`, { method: "POST" });
     });
-  }, []);
+  }, [posts]);
 
   const handleAddPost = () => {
     if (newPost.trim()) {
