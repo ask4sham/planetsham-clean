@@ -1,38 +1,28 @@
-import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { NextRequest } from "next/server";
+import { countBy } from "lodash";
 
-// Helper to count by key
-function countBy<T>(arr: T[], keyFn: (item: T) => string): Record<string, number> {
-  return arr.reduce((acc, item) => {
-    const key = keyFn(item);
-    acc[key] = (acc[key] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-}
+type Post = {
+  tags: string[];
+  scheduledAt?: string;
+};
 
-export async function GET() {
-  try {
-    const blogFile = path.join(process.cwd(), "public", "blog.json");
+export async function GET(req: NextRequest) {
+  const posts: Post[] = [
+    { tags: ["ai", "news"], scheduledAt: "2025-05-21T09:00" },
+    { tags: ["news"], scheduledAt: "2025-05-22T10:30" },
+    { tags: ["ai"], scheduledAt: "2025-05-23T15:00" },
+  ];
 
-    if (!fs.existsSync(blogFile)) {
-      return NextResponse.json({ totalPosts: 0, tagsCount: {}, monthlyCount: {} });
-    }
+  const totalPosts = posts.length;
+  const tagsCount = countBy(posts.flatMap((post) => post.tags));
+  const monthlyCount = countBy(posts, (p) => {
+    const date = new Date(p.scheduledAt || Date.now());
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+  });
 
-    const posts = JSON.parse(fs.readFileSync(blogFile, "utf-8"));
-
-    const totalPosts = posts.length;
-
-    const tagsCount = countBy(posts.flatMap((p: any) => p.tags || []), (tag) => tag);
-
-    const monthlyCount = countBy(posts, (p: any) => {
-      const date = new Date(p.scheduledAt || Date.now());
-      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
-    });
-
-    return NextResponse.json({ totalPosts, tagsCount, monthlyCount });
-  } catch (err) {
-    console.error("❌ Analytics error:", err);
-    return NextResponse.json({ error: "Failed to load analytics" }, { status: 500 });
-  }
+  return Response.json({
+    totalPosts,
+    tagsCount,
+    monthlyCount,
+  });
 }
