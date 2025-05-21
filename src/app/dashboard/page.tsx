@@ -13,13 +13,13 @@ type Post = {
 export default function DashboardPage() {
   const [view, setView] = useState<"published" | "scheduled">("published");
   const [posts, setPosts] = useState<Post[]>([]);
-  const [selectedTag, setSelectedTag] = useState<string>("All");
+  const [selectedTag, setSelectedTag] = useState("All");
   const [search, setSearch] = useState("");
 
   useEffect(() => {
     fetch(`/api/posts/${view}`)
       .then((res) => res.json())
-      .then((data) => setPosts(data));
+      .then((data: Post[]) => setPosts(data));
   }, [view]);
 
   const allTags = Array.from(new Set(posts.flatMap((p) => p.tags || [])));
@@ -30,29 +30,31 @@ export default function DashboardPage() {
     return tagMatch && textMatch;
   });
 
-  const handleEdit = (index: number) => {
+  const handleEdit = async (index: number) => {
     const post = posts[index];
-    const newContent = prompt("Edit post content:", post.content);
-    const newDate = prompt("Reschedule date (YYYY-MM-DDTHH:mm):", post.scheduledAt || "");
-    const newTags = prompt("Enter tags (comma-separated):", post.tags?.join(", ") || "");
+    const newContent = prompt("Edit post content:", post.content) ?? "";
+    const newDate = prompt("Reschedule date (YYYY-MM-DDTHH:mm):", post.scheduledAt || "") ?? "";
+    const newTagsRaw = prompt("Enter tags (comma-separated):", post.tags?.join(", ") || "") ?? "";
 
     if (newContent && newDate) {
-      const tags = newTags.split(",").map((t) => t.trim()).filter(Boolean);
-      fetch("/api/posts/scheduled/edit", {
+      const tags = newTagsRaw.split(",").map((t) => t.trim()).filter(Boolean);
+      await fetch("/api/posts/scheduled/edit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ index, newContent, newDate, tags }),
-      }).then(() => window.location.reload());
+      });
+      window.location.reload();
     }
   };
 
-  const handleDelete = (index: number) => {
+  const handleDelete = async (index: number) => {
     if (confirm("Are you sure you want to delete this post?")) {
-      fetch("/api/posts/scheduled/delete", {
+      await fetch("/api/posts/scheduled/delete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ index }),
-      }).then(() => window.location.reload());
+      });
+      window.location.reload();
     }
   };
 
