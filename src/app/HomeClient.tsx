@@ -16,7 +16,7 @@ function getGreeting() {
 
 export default function HomeClient() {
   const greeting = getGreeting();
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useStatePost<[]>([]);
 
   useEffect(() => {
     fetch("/api/posts/published")
