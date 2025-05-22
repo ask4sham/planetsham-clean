@@ -1,0 +1,31 @@
+name: Predeploy Checks
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sanity-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v3
+
+      - name: 🛠 Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: 📦 Install dependencies
+        run: npm install
+
+      - name: ✅ Run Lint Check
+        run: npm run lint
+
+      - name: ❗ Warn if 'use client' is used with metadata
+        run: |
+          if grep -r '"use client"' src/app/page.tsx | grep -q 'metadata'; then
+            echo "❌ ERROR: 'use client' and 'metadata' cannot coexist in page.tsx";
+            exit 1;
+          fi
