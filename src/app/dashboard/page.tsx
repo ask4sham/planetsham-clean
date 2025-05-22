@@ -13,14 +13,31 @@ type Post = {
 export default function DashboardPage() {
   const [view, setView] = useState<"published" | "scheduled">("published");
   const [posts, setPosts] = useState<Post[]>([]);
+  const [sanitizedHTML, setSanitizedHTML] = useState<string[]>([]);
   const [selectedTag, setSelectedTag] = useState("All");
   const [search, setSearch] = useState("");
 
+  // Fetch posts
   useEffect(() => {
     fetch(`/api/posts/${view}`)
       .then((res) => res.json())
       .then((data: Post[]) => setPosts(data));
   }, [view]);
+
+  // Convert Markdown to sanitized HTML
+  useEffect(() => {
+    const convertMarkdown = async () => {
+      const result = await Promise.all(
+        posts.map(async (post) => {
+          const raw = await marked(post.content);
+          return DOMPurify.sanitize(raw);
+        })
+      );
+      setSanitizedHTML(result);
+    };
+
+    convertMarkdown();
+  }, [posts]);
 
   const allTags = Array.from(new Set(posts.flatMap((p) => p.tags || [])));
 
@@ -134,7 +151,7 @@ export default function DashboardPage() {
             <div
               className="prose"
               dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(marked(post.content)),
+                __html: sanitizedHTML[idx] || "",
               }}
             />
             <p className="text-xs text-gray-500">
