@@ -1,6 +1,6 @@
 import './globals.css';
 import type { Metadata } from 'next';
-import Navbar from '@/components/Navbar';
+import Navbar from '../components/Navbar';
 import { Analytics } from '@vercel/analytics/react'; // ✅ Step 1: Import Analytics
 
 export const metadata: Metadata = {

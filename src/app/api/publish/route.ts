@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 
-import { getScheduledPosts, updateScheduledPosts } from "@/lib/scheduler";
+import { getScheduledPosts, updateScheduledPosts } from "../../../lib/scheduler";
 
 // ✅ Ensure we're targeting the correct public path
 const blogFilePath = path.join(process.cwd(), "public", "blog.json");
