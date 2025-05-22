@@ -1,4 +1,44 @@
 import Image from "next/image";
+import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+
+export const metadata: Metadata = {
+  title: "PlanetSham – AI-Powered Insights & Blog",
+  description: "Explore PlanetSham: your AI-powered hub for intelligent blog posts, real-time analytics, and curated content.",
+  metadataBase: new URL("https://planetsham.com"),
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "PlanetSham – AI-Powered Insights",
+    description: "Fresh insights, auto-generated posts, and data dashboards powered by AI.",
+    url: "https://planetsham.com",
+    siteName: "PlanetSham",
+    images: [
+      {
+        url: "https://planetsham.com/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "PlanetSham Open Graph Image",
+      },
+    ],
+    locale: "en_GB",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "PlanetSham – Smart Blog Powered by AI",
+    description: "Visit PlanetSham for the latest AI-generated posts and tools.",
+    images: ["https://planetsham.com/og-image.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    nocache: true,
+  },
+};
 
 export default function Home() {
   return (
