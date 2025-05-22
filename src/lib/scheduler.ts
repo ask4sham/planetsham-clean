@@ -1,5 +1,16 @@
+export function getScheduledPosts() {
+  return {
+    ready: [],
+    future: [],
+  };
+}
+
+export function updateScheduledPosts(posts: any[]) {
+  console.log("Updating scheduled posts:", posts);
+  return posts;
+}
+
 export function schedulePost(post: { content: string; scheduledAt: string }) {
-  // Placeholder: logic to add post to schedule
   console.log("Scheduling post:", post);
   return { success: true };
 }
