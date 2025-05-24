@@ -1,40 +1,50 @@
 import { NextResponse } from "next/server";
-import fs from "fs/promises";
-import path from "path";
+import { createClient } from "@supabase/supabase-js";
 
-const scheduledPath = path.join(process.cwd(), "src", "data", "scheduled-posts.json");
-const publishedPath = path.join(process.cwd(), "src", "data", "published-posts.json");
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export async function POST() {
   try {
-    const [scheduledData, publishedData] = await Promise.all([
-      fs.readFile(scheduledPath, "utf-8"),
-      fs.readFile(publishedPath, "utf-8"),
-    ]);
+    const now = new Date().toISOString();
+    console.log("📅 Running cron at:", now);
 
-    const scheduledPosts = JSON.parse(scheduledData);
-    const publishedPosts = JSON.parse(publishedData);
+    // 1. Fetch due posts
+    const { data: posts, error: fetchError } = await supabase
+      .from("posts")
+      .select("*")
+      .eq("published", false)
+      .lte("schedule_at", now); // safer than .lt
 
-    const now = new Date();
-    const remainingPosts = [];
-    const newlyPublished = [];
-
-    for (const post of scheduledPosts) {
-      if (new Date(post.scheduledAt) <= now) {
-        newlyPublished.push(post);
-      } else {
-        remainingPosts.push(post);
-      }
+    if (fetchError) {
+      console.error("❌ Fetch error:", fetchError.message);
+      throw new Error(`Fetch error: ${fetchError.message}`);
     }
 
-    await Promise.all([
-      fs.writeFile(scheduledPath, JSON.stringify(remainingPosts, null, 2)),
-      fs.writeFile(publishedPath, JSON.stringify([...publishedPosts, ...newlyPublished], null, 2)),
-    ]);
+    if (!posts || posts.length === 0) {
+      console.log("✅ No posts to publish.");
+      return NextResponse.json({ published: 0, remaining: 0 });
+    }
 
-    return NextResponse.json({ published: newlyPublished.length, remaining: remainingPosts.length });
-  } catch (err) {
-    console.error("Error in cron/publish:", err);
+    const ids = posts.map((post) => post.id);
+    console.log("📝 Publishing posts with IDs:", ids);
+
+    const { error: updateError } = await supabase
+      .from("posts")
+      .update({ published: true, published_at: now })
+      .in("id", ids);
+
+    if (updateError) {
+      console.error("❌ Update error:", updateError.message);
+      throw new Error(`Update error: ${updateError.message}`);
+    }
+
+    console.log(`✅ Published ${ids.length} post(s).`);
+    return NextResponse.json({ published: ids.length, remaining: 0 });
+  } catch (err: any) {
+    console.error("❌ Exception in cron/publish:", err.message || err);
     return NextResponse.json({ error: "Failed to publish posts" }, { status: 500 });
   }
 }

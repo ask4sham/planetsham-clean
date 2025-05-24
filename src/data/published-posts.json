@@ -12,5 +12,9 @@
     "tags": [
       "debug"
     ]
+  },
+  {
+    "content": "🚀 This is a test post scheduled to publish immediately.",
+    "scheduledAt": "2025-05-24T08:00:00Z"
   }
 ]

@@ -2,13 +2,10 @@
 const nextConfig = {
   reactStrictMode: true,
   experimental: {
-    serverActions: true,
-    cron: [
-      {
-        path: '/api/cron/publish',
-        schedule: '0 * * * *',
-      },
-    ],
+    serverActions: {},
+  },
+  webpack: (config) => {
+    return config;
   },
 };
 
