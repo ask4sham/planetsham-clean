@@ -6,7 +6,7 @@ const nextConfig = {
     cron: [
       {
         path: '/api/cron/publish',
-        schedule: '0 * * * *', // every hour
+        schedule: '0 * * * *',
       },
     ],
   },
