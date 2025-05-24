@@ -1,0 +1,16 @@
+[
+  {
+    "content": "✅ This post should publish now",
+    "scheduledAt": "2024-01-01T00:00:00Z",
+    "tags": [
+      "test"
+    ]
+  },
+  {
+    "content": "✅ New post for immediate publishing test",
+    "scheduledAt": "2025-05-23T13:00:00Z",
+    "tags": [
+      "debug"
+    ]
+  }
+]

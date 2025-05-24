@@ -1,28 +1,31 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
+import fs from "fs/promises";
 import path from "path";
+
+const scheduledPath = path.join(process.cwd(), "src", "data", "scheduled-posts.json");
+const publishedPath = path.join(process.cwd(), "src", "data", "published-posts.json");
+
+function toCSV(posts: any[]) {
+  const header = "content,scheduledAt,tags";
+  const rows = posts.map((p) =>
+    `"${(p.content || "").replace(/"/g, '""')}","${p.scheduledAt || ""}","${(p.tags || []).join(" | ")}"`
+  );
+  return [header, ...rows].join("\n");
+}
 
 export async function GET() {
   try {
-    // ✅ Updated to project root path (not public/)
-    const filePath = path.join(process.cwd(), "blog.json");
+    const [scheduledData, publishedData] = await Promise.all([
+      fs.readFile(scheduledPath, "utf-8"),
+      fs.readFile(publishedPath, "utf-8"),
+    ]);
 
-    if (!fs.existsSync(filePath)) {
-      return new NextResponse("No published posts found", { status: 404 });
-    }
+    const scheduled = JSON.parse(scheduledData);
+    const published = JSON.parse(publishedData);
 
-    const raw = fs.readFileSync(filePath, "utf-8");
-    const posts = JSON.parse(raw);
-
-    const csv = [
-      "content,scheduledAt",
-      ...posts.map((p: any) =>
-        `"${(p.content || "").replace(/"/g, '""')}","${p.scheduledAt || ""}"`
-      ),
-    ].join("\n");
+    const csv = toCSV([...scheduled, ...published]);
 
     return new NextResponse(csv, {
-      status: 200,
       headers: {
         "Content-Type": "text/csv",
         "Content-Disposition": "attachment; filename=planetsham-posts.csv",
