@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   experimental: {
-    serverActions: true, // optional but fine to include
+    serverActions: true,
     cron: [
       {
         path: '/api/cron/publish',
