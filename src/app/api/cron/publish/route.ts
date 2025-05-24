@@ -1,9 +1,3 @@
-// Minor change to force Vercel redeploy
-
-import { NextResponse } from "next/server";
-import fs from "fs/promises";
-import path from "path";
-
 import { NextResponse } from "next/server";
 import fs from "fs/promises";
 import path from "path";
@@ -22,7 +16,6 @@ export async function POST() {
     const publishedPosts = JSON.parse(publishedData);
 
     const now = new Date();
-
     const remainingPosts = [];
     const newlyPublished = [];
 
@@ -34,7 +27,6 @@ export async function POST() {
       }
     }
 
-    // Save updated lists
     await Promise.all([
       fs.writeFile(scheduledPath, JSON.stringify(remainingPosts, null, 2)),
       fs.writeFile(publishedPath, JSON.stringify([...publishedPosts, ...newlyPublished], null, 2)),
@@ -46,6 +38,7 @@ export async function POST() {
     return NextResponse.json({ error: "Failed to publish posts" }, { status: 500 });
   }
 }
+
 export async function GET() {
   return NextResponse.json({ ok: true, msg: "GET /api/cron/publish works" });
 }
