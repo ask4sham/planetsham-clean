@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "next/image"; // ✅ Required for next/image
 import { Card, CardContent } from "@/components/ui/card";
 import { formatDistanceToNow } from "date-fns";
 
@@ -17,7 +17,7 @@ export function PostCard({ content, publishedAt }: PostCardProps) {
   return (
     <Card className="rounded-2xl shadow-md bg-zinc-900 text-white">
       <CardContent className="p-4 flex gap-4">
-        <div className="w-8 h-8">
+        <div className="w-8 h-8 relative">
           <Image
             src="/ai.png"
             alt="AI"
