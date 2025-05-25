@@ -1,7 +1,8 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import Navbar from '../components/Navbar';
-import { Analytics } from '@vercel/analytics/react'; // ✅ Step 1: Import Analytics
+import { Analytics } from '@vercel/analytics/react';
+import SupabaseProvider from '../components/SupabaseProvider'; // ✅ New wrapper
 
 export const metadata: Metadata = {
   title: 'PlanetSham Clean',
@@ -12,9 +13,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
-        <Navbar />
-        <main className="p-4">{children}</main>
-        <Analytics /> {/* ✅ Step 2: Add Analytics at bottom of <body> */}
+        <SupabaseProvider>
+          <Navbar />
+          <main className="p-4">{children}</main>
+          <Analytics />
+        </SupabaseProvider>
       </body>
     </html>
   );
