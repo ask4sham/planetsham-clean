@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatDistanceToNow } from "date-fns";
 
@@ -17,13 +16,13 @@ export function PostCard({ content, publishedAt }: PostCardProps) {
   return (
     <Card className="rounded-2xl shadow-md bg-zinc-900 text-white">
       <CardContent className="p-4 flex gap-4">
-        <div className="w-8 h-8 inline-block transition-transform duration-300 hover:scale-110">
-          <Image
+        <div className="w-8 h-8 overflow-hidden rounded-full transition-transform duration-300 hover:scale-110">
+          <img
             src="/ai-avatar.svg"
             alt="AI"
             width={32}
             height={32}
-            className="rounded-full"
+            className="w-full h-full object-cover"
           />
         </div>
         <div className="flex-1">
