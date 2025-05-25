@@ -2,12 +2,16 @@
 
 import { SessionContextProvider } from "@supabase/auth-helpers-react";
 import { createBrowserSupabaseClient } from "@supabase/auth-helpers-nextjs";
-import { useState } from "react";
-import { Database } from "@/types/supabase"; // only if you’re using generated types
+import { useState, ReactNode } from "react";
+import { Database } from "@/types/supabase"; // only if you're using custom types
 
-export default function SupabaseProvider({ children }: { children: React.ReactNode }) {
+interface Props {
+  children: ReactNode;
+}
+
+export default function SupabaseProvider({ children }: Props) {
   const [supabaseClient] = useState(() =>
-    createBrowserSupabaseClient<Database>() // or just <> if you don't have types
+    createBrowserSupabaseClient<Database>() // or remove <Database> if not using types
   );
 
   return (
