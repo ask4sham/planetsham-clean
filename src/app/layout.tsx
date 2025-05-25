@@ -5,7 +5,7 @@ import { Analytics } from '@vercel/analytics/react';
 import SupabaseProvider from '../components/SupabaseProvider'; // ✅ New wrapper
 
 export const metadata: Metadata = {
-  title: 'PlanetSham Clean',
+  title: 'PlanetSham AI', // 👈 Just update the title
   description: 'Fresh start with blog',
 };
 
