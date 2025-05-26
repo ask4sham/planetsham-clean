@@ -15,8 +15,8 @@
     "noEmit": true,
     "jsx": "preserve",
     "incremental": true,
-    "baseUrl": ".",                           // ✅ Add this
-    "paths": {                                // ✅ And this block
+    "baseUrl": ".",
+    "paths": {
       "@/*": ["src/*"]
     },
     "plugins": [
