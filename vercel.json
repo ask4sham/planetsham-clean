@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "api/publish/route": {
+      "runtime": "edge"
+    }
+  },
   "crons": [
     {
       "path": "/api/publish",
