@@ -1,7 +1,7 @@
 {
   "functions": {
     "api/publish/route.ts": {
-      "runtime": "edge@2.0.0"  // Must include version
+      "runtime": "edge@2.0.0"
     }
   },
   "crons": [
