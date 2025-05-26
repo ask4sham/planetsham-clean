@@ -1,15 +1,13 @@
 {
   "functions": {
-    "api/publish/route.ts": {
+    "api/publish": {
       "runtime": "edge"
     }
   },
   "cron": [
     {
       "path": "/api/publish",
-      "schedule": "*/5 * * * *"  // every 5 minutes
+      "schedule": "*/5 * * * *"
     }
   ]
 }
-
-// trigger redeploy
