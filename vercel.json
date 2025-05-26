@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/publish/route": {
+    "api/publish/route.ts": {
       "runtime": "edge"
     }
   },
