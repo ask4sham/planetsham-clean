@@ -1,7 +1,7 @@
 {
   "functions": {
     "api/publish/route": {
-      "runtime": "edge"
+      "runtime": "edge@2.0.0"
     }
   },
   "crons": [
