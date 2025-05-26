@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/publish": {
+    "api/publish/route": {
       "runtime": "edge"
     }
   },
