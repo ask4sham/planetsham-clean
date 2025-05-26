@@ -1,10 +1,4 @@
 {
-  "version": 2,
-  "functions": {
-    "api/publish/route.ts": {
-      "runtime": "experimental-edge"
-    }
-  },
   "crons": [
     {
       "path": "/api/publish",
