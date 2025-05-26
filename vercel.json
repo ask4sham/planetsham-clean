@@ -4,7 +4,7 @@
       "runtime": "edge"
     }
   },
-  "cron": [
+  "crons": [
     {
       "path": "/api/publish",
       "schedule": "*/5 * * * *"
