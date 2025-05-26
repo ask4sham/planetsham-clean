@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabaseServerClient";
+import { createClient } from "../../../lib/supabaseServerClient";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/authOptions";
+import { authOptions } from "../../../lib/authOptions";
 
 export async function POST(req: Request) {
   const { postId } = await req.json();

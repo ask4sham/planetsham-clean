@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { handleBoost } from "@/lib/stripe";
-import { supabase } from "@/lib/supabaseClient";
+import { handleBoost } from "../../../lib/stripe";
+import { supabase } from "../../../lib/supabaseClient";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/authOptions";
+import { authOptions } from "../../../lib/authOptions";
 
 export async function POST(req: Request) {
   const { postId } = await req.json();
