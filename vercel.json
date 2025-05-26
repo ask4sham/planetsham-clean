@@ -1,9 +1,4 @@
 {
-  "functions": {
-    "api/publish/route.ts": {
-      "runtime": "edge"
-    }
-  },
   "crons": [
     {
       "path": "/api/publish",
