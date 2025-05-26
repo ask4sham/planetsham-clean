@@ -1,8 +1,13 @@
 {
+  "functions": {
+    "api/publish/route.ts": {
+      "runtime": "edge@2.0.0"  // Versioned Edge Runtime
+    }
+  },
   "crons": [
     {
       "path": "/api/publish",
-      "schedule": "*/5 * * * *"
+      "schedule": "*/5 * * * *"  // Runs every 5 minutes
     }
   ]
 }
