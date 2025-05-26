@@ -4,7 +4,7 @@
       "runtime": "experimental-edge"
     }
   },
-  "crons": [
+  "cron": [
     {
       "path": "/api/publish",
       "schedule": "*/5 * * * *"
