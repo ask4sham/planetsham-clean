@@ -20,8 +20,9 @@
     "isomorphic-dompurify": "^2.25.0",
     "marked": "^15.0.12",
     "next": "15.3.2",
+    "next-auth": "^4.24.11",
     "react": "^18.2.0",
-"react-dom": "^18.2.0",
+    "react-dom": "^18.2.0",
     "recharts": "^2.15.3",
     "tailwind-merge": "^3.3.0"
   },
