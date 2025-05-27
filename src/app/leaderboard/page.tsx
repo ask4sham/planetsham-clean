@@ -1,40 +1,48 @@
-// src/app/leaderboard/page.tsx
 import { supabase } from "@/lib/supabaseClient";
 
-type BoostCount = {
+type BoostEntry = {
   post_id: string;
   boost_count: number;
+  content: string;
 };
 
 export default async function LeaderboardPage() {
-  const { data, error } = await supabase
+  const { data: boostData, error } = await supabase
     .from("boosts")
-    .select("post_id", { count: "exact", head: false });
+    .select("post_id, posts(content)") // Removed .eq("posts.published", true)
+    .order("post_id", { ascending: false })
+    .limit(50);
 
   if (error) {
-    console.error(error.message);
+    console.error("Leaderboard fetch failed:", error.message);
     return <p className="text-red-500">Failed to load leaderboard.</p>;
   }
 
-  const counts = data?.reduce<Record<string, number>>((acc, entry) => {
-    const { post_id } = entry;
-    acc[post_id] = (acc[post_id] || 0) + 1;
+  const leaderboard = boostData?.reduce<Record<string, BoostEntry>>((acc, row: any) => {
+    const { post_id, posts } = row;
+    if (!acc[post_id]) {
+      acc[post_id] = { post_id, boost_count: 0, content: posts?.content || "" };
+    }
+    acc[post_id].boost_count++;
     return acc;
-  }, {}) || {};
+  }, {});
 
-  const sorted = Object.entries(counts).sort(([, a], [, b]) => b - a);
+  const sorted = Object.values(leaderboard || {}).sort((a, b) => b.boost_count - a.boost_count);
 
   return (
-    <main className="p-6 text-white max-w-2xl mx-auto">
+    <main className="p-6 text-white">
       <h1 className="text-3xl font-bold mb-4">🔥 Boost Leaderboard</h1>
       {sorted.length === 0 ? (
-        <p className="text-zinc-400">No boosts yet.</p>
+        <p className="text-zinc-400 flex flex-col items-center gap-2 mt-20">
+          <span className="text-4xl">🔥</span>
+          No boosts yet.
+        </p>
       ) : (
         <ul className="space-y-4">
-          {sorted.map(([postId, count]) => (
-            <li key={postId} className="p-4 bg-zinc-800 rounded-xl shadow">
-              <p className="text-sm text-zinc-300">Post ID: {postId}</p>
-              <p className="text-green-400 font-semibold">Boosts: {count}</p>
+          {sorted.map(({ post_id, content, boost_count }) => (
+            <li key={post_id} className="p-4 bg-zinc-800 rounded-lg shadow-md">
+              <p className="text-lg">{content}</p>
+              <p className="text-green-400">Boosts: {boost_count}</p>
             </li>
           ))}
         </ul>

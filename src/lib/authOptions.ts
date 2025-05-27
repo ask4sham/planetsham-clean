@@ -9,4 +9,5 @@ export const authOptions: AuthOptions = {
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
+  adapter: undefined, // Optional, no DB used
 };
