@@ -8,8 +8,8 @@ export async function POST(req: Request) {
 
   const session = await getServerSession(authOptions);
 
-  // ✅ Force `any` to prevent TS crash — we know what we're doing
-  const userId = (session?.user as any)?.id ?? "11111111-1111-1111-1111-111111111111";
+  // ✅ Safely extract `sub` (user ID from JWT), fallback to hardcoded UUID for dev
+  const userId = (session?.user as { sub?: string })?.sub ?? "11111111-1111-1111-1111-111111111111";
 
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
