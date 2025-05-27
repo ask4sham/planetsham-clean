@@ -7,8 +7,8 @@ type PostCardProps = {
   content: string;
 };
 
-export default function PostCard({ postId, content }: PostCardProps) {
-  const [isBoosted, setIsBoosted] = useState(true); // ← TEMPORARY force for testing
+export function PostCard({ postId, content }: PostCardProps) {
+  const [isBoosted, setIsBoosted] = useState(true); // Forced true for testing
 
   return (
     <div className="p-4 bg-zinc-900 text-white rounded-xl shadow-md mb-4">
