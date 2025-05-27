@@ -10,17 +10,19 @@ type PostCardProps = {
 export function PostCard({ postId, content }: PostCardProps) {
   const [isBoosted, setIsBoosted] = useState(false);
 
-  // ✅ Detect if user has already boosted this post
+  // ✅ Detect if this post is already boosted
   useEffect(() => {
     const checkBoost = async () => {
       const res = await fetch("/api/check-boost", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        cache: "no-store",
         body: JSON.stringify({ postId }),
       });
       const result = await res.json();
-      if (result.boosted) {
-        setIsBoosted(true);
-      }
+      setIsBoosted(result.boosted);
     };
     checkBoost();
   }, [postId]);
@@ -34,6 +36,9 @@ export function PostCard({ postId, content }: PostCardProps) {
           onClick={async () => {
             const res = await fetch("/api/unboost", {
               method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
               body: JSON.stringify({ postId }),
             });
             const result = await res.json();
@@ -51,6 +56,9 @@ export function PostCard({ postId, content }: PostCardProps) {
           onClick={async () => {
             const res = await fetch("/api/boost", {
               method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
               body: JSON.stringify({ postId }),
             });
             const result = await res.json();
