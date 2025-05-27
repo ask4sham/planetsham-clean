@@ -7,9 +7,9 @@ export async function POST(req: Request) {
   const { postId } = await req.json();
 
   const session = await getServerSession(authOptions);
-  const user = session?.user as { sub?: string }; // ✅ cast session.user to include `sub`
-
-  const userId = user?.sub ?? "11111111-1111-1111-1111-111111111111"; // ✅ fallback
+  const userId = typeof session?.user?.sub === "string"
+    ? session.user.sub
+    : "11111111-1111-1111-1111-111111111111"; // ✅ fallback UUID for local/dev
 
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
