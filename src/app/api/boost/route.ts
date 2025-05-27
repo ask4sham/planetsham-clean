@@ -7,10 +7,9 @@ export async function POST(req: Request) {
   const { postId } = await req.json();
 
   const session = await getServerSession(authOptions);
-  const user = session?.user || {};
   
-  // ⚠️ TEMP fallback for testing
-  const userId = (user as { id?: string })?.id || "test-user-id";
+  // ✅ Correctly extract user ID from JWT
+  const userId = session?.user?.sub ?? "11111111-1111-1111-1111-111111111111";
 
   console.log("🔍 Boosting postId:", postId);
   console.log("🧑‍💻 User ID:", userId);
