@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type PostCardProps = {
   postId: string;
@@ -8,7 +8,22 @@ type PostCardProps = {
 };
 
 export function PostCard({ postId, content }: PostCardProps) {
-  const [isBoosted, setIsBoosted] = useState(true); // Forced true for testing
+  const [isBoosted, setIsBoosted] = useState(false);
+
+  // ✅ Detect if user has already boosted this post
+  useEffect(() => {
+    const checkBoost = async () => {
+      const res = await fetch("/api/check-boost", {
+        method: "POST",
+        body: JSON.stringify({ postId }),
+      });
+      const result = await res.json();
+      if (result.boosted) {
+        setIsBoosted(true);
+      }
+    };
+    checkBoost();
+  }, [postId]);
 
   return (
     <div className="p-4 bg-zinc-900 text-white rounded-xl shadow-md mb-4">
