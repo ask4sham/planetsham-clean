@@ -7,10 +7,9 @@ export async function POST(req: Request) {
   const { postId } = await req.json();
 
   const session = await getServerSession(authOptions);
-  const user = session?.user;
 
-  // ✅ Access `sub` — NOT `id`
-  const userId = user?.sub ?? "11111111-1111-1111-1111-111111111111";
+  // ✅ Fix: use `sub`, not `id`
+  const userId = session?.user?.sub ?? "11111111-1111-1111-1111-111111111111";
 
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
