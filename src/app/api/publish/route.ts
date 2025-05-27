@@ -2,7 +2,7 @@ import fs from "fs/promises";
 import path from "path";
 import { NextResponse } from "next/server";
 
-// 📁 File paths to scheduled and published JSON
+// ✅ Updated paths
 const scheduledPath = path.join(process.cwd(), "src/data/scheduled-posts.json");
 const publishedPath = path.join(process.cwd(), "src/data/published-posts.json");
 
@@ -15,20 +15,19 @@ export async function POST() {
 
     const scheduled = JSON.parse(scheduledRaw);
     const published = JSON.parse(publishedRaw);
-    const now = new Date();
 
-    const newlyPublished = [];
+    const now = new Date();
     const stillScheduled = [];
+    const newlyPublished = [];
 
     for (const post of scheduled) {
-      const scheduledAt = new Date(post.scheduledAt || post.scheduled_at);
-      const isReady = scheduledAt <= now;
+      const postTime = new Date(post.scheduled_at || post.scheduledAt); // handle both formats
 
-      console.log(`🕒 Now: ${now.toISOString()}`);
-      console.log(`📄 Post: ${post.content}`);
-      console.log(`📆 Scheduled for: ${scheduledAt.toISOString()}`);
+      console.log(`⏰ Now: ${now.toISOString()}`);
+      console.log(`📝 Post: ${post.content}`);
+      console.log(`📅 Scheduled for: ${postTime.toISOString()}`);
 
-      if (isReady) {
+      if (postTime <= now) {
         newlyPublished.push(post);
       } else {
         stillScheduled.push(post);
@@ -42,12 +41,9 @@ export async function POST() {
       ]);
     }
 
-    return NextResponse.json({
-      publishedCount: newlyPublished.length,
-      published: newlyPublished,
-    });
+    return NextResponse.json({ published: newlyPublished });
   } catch (err) {
-    console.error("🚨 Auto-publish error:", err);
+    console.error("🚨 Auto publish error:", err);
     return new Response(JSON.stringify({ error: "Server error" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },

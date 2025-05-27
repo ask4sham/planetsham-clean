@@ -3,64 +3,55 @@
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatDistanceToNow } from "date-fns";
+import { useState } from "react";
 
 type PostCardProps = {
   content: string;
   publishedAt?: string;
-  boostCount?: number;
-  boostedByUser?: boolean;
-  onBoostToggle?: () => void; // 🔥 new prop
 };
 
-export function PostCard({
-  content,
-  publishedAt,
-  boostCount = 0,
-  boostedByUser = false,
-  onBoostToggle,
-}: PostCardProps) {
+export function PostCard({ content, publishedAt }: PostCardProps) {
   const timeAgo = publishedAt
     ? formatDistanceToNow(new Date(publishedAt), { addSuffix: true })
     : "Just now";
 
+  const [boosted, setBoosted] = useState(false);
+
+  const handleBoost = async () => {
+    await fetch("/api/boost", {
+      method: "POST",
+      body: JSON.stringify({ postId: content }),
+    });
+    setBoosted(true);
+  };
+
   return (
     <Card className="rounded-2xl shadow-md bg-zinc-900 text-white">
-      <CardContent className="p-4 flex gap-4">
-        <div className="w-8 h-8 relative transition-transform duration-300 hover:scale-110">
-          <Image
-            src="/ai-avatar.svg"
-            alt="AI"
-            width={32}
-            height={32}
-            className="rounded-full"
-          />
-        </div>
-
-        <div className="flex-1">
-          <p className="text-base mb-2">{content}</p>
-          <div className="flex justify-between text-sm text-zinc-400">
-            <span>{timeAgo}</span>
-            <div className="flex gap-2 items-center">
-              <span>👍 {boostCount} boost{boostCount !== 1 ? "s" : ""}</span>
-              {boostedByUser && (
-                <span className="text-emerald-400 font-medium">🔥 You boosted this</span>
-              )}
-            </div>
+      <CardContent className="p-4 flex flex-col gap-2">
+        <div className="flex gap-4 items-start">
+          <div className="w-8 h-8 relative">
+            <Image
+              src="/ai-avatar.svg"
+              alt="AI"
+              width={32}
+              height={32}
+              className="rounded-full"
+            />
           </div>
-
-          {onBoostToggle && (
-            <button
-              onClick={onBoostToggle}
-              className={`mt-2 text-sm px-3 py-1 rounded-full transition-colors duration-200 ${
-                boostedByUser
-                  ? "bg-red-500 text-white hover:bg-red-600"
-                  : "bg-emerald-500 text-white hover:bg-emerald-600"
-              }`}
-            >
-              {boostedByUser ? "Unboost 🔥" : "Boost 🔥"}
-            </button>
-          )}
+          <div className="flex-1">
+            <p>{content}</p>
+            <p className="text-xs text-zinc-400 mt-1">{timeAgo}</p>
+          </div>
         </div>
+        <button
+          onClick={handleBoost}
+          disabled={boosted}
+          className={`px-3 py-1 rounded-xl text-sm ${
+            boosted ? "bg-green-700" : "bg-blue-600 hover:bg-blue-700"
+          }`}
+        >
+          {boosted ? "✅ Boosted" : "⚡ Boost Post"}
+        </button>
       </CardContent>
     </Card>
   );

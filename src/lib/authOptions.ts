@@ -1,18 +1,12 @@
-// src/lib/auth.ts
-import { supabase } from "@/lib/supabaseClient"; // adjust this import path as needed
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/authOptions"; // your NextAuth config
+import { AuthOptions } from "next-auth";
+import GitHubProvider from "next-auth/providers/github";
 
-export async function getUserInterests() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return ["tech", "finance"]; // fallback defaults
-
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("interests")
-    .eq("id", session.user.id)
-    .single();
-
-  if (error || !data) return ["tech", "finance"]; // fail-safe
-  return data.interests || ["tech", "finance"];
-}
+export const authOptions: AuthOptions = {
+  providers: [
+    GitHubProvider({
+      clientId: process.env.GITHUB_ID!,
+      clientSecret: process.env.GITHUB_SECRET!,
+    }),
+  ],
+  secret: process.env.NEXTAUTH_SECRET,
+};

@@ -1,20 +1,10 @@
-import path from "path";
-import type { NextConfig } from "next";
-
 /** @type {import('next').NextConfig} */
-const nextConfig: NextConfig = {
+const nextConfig = {
   reactStrictMode: true,
   experimental: {
     serverActions: {},
   },
   webpack: (config) => {
-    config.resolve = {
-      ...config.resolve,
-      alias: {
-        ...(config.resolve?.alias || {}),
-        "@": path.resolve(__dirname, "src"),
-      },
-    };
     return config;
   },
 };

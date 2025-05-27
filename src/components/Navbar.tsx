@@ -7,8 +7,6 @@ export default function Navbar() {
         <li><Link href="/">Home</Link></li>
         <li><Link href="/blog">Blog</Link></li>
         <li><Link href="/analytics">Analytics</Link></li>
-        <li><Link href="/profile">Edit Profile</Link></li>
-        <li><Link href="/login">Login</Link></li> {/* 👈 Added login link */}
       </ul>
     </nav>
   );
