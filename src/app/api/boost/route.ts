@@ -7,10 +7,7 @@ export async function POST(req: Request) {
   const { postId } = await req.json();
 
   const session = await getServerSession(authOptions);
-  const user = session?.user;
-
-  // 🔍 Supabase user ID is under 'sub'
-  const userId = session?.token?.sub || session?.user?.id;
+  const userId = (session as any)?.user?.id;
 
   console.log("🔍 Boosting postId:", postId);
   console.log("🧑‍💻 User ID:", userId);
