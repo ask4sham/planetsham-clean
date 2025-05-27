@@ -7,9 +7,7 @@ export async function POST(req: Request) {
   const { postId } = await req.json();
 
   const session = await getServerSession(authOptions);
-
-  // ✅ Fix: Use sub (UUID) from session
-  const userId = session?.user?.sub ?? "11111111-1111-1111-1111-111111111111";
+  const userId = session?.user?.sub ?? "11111111-1111-1111-1111-111111111111"; // ✅ use .sub not .id
 
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
