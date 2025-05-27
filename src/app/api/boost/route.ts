@@ -8,8 +8,8 @@ export async function POST(req: Request) {
 
   const session = await getServerSession(authOptions);
 
-  // ✅ Force extract `sub` or fallback to test user ID
-  const userId = (session?.user as any)?.sub ?? "11111111-1111-1111-1111-111111111111";
+  // ✅ Force `any` to prevent TS crash — we know what we're doing
+  const userId = (session?.user as any)?.id ?? "11111111-1111-1111-1111-111111111111";
 
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
