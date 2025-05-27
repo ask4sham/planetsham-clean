@@ -7,14 +7,13 @@ export async function POST(req: Request) {
   const { postId } = await req.json();
 
   const session = await getServerSession(authOptions);
-  const userId = (session?.user as { sub?: string })?.sub ?? "11111111-1111-1111-1111-111111111111";
+
+  // ✅ Force extract `sub` or fallback to test user ID
+  const userId = (session?.user as any)?.sub ?? "11111111-1111-1111-1111-111111111111";
 
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-
-  console.log("🔍 Boosting postId:", postId);
-  console.log("🧑‍💻 User ID:", userId);
 
   const { error } = await supabase.from("boosts").insert({
     post_id: postId,
