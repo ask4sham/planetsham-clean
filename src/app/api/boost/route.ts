@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabaseClient";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
+import { supabase } from "@/lib/supabaseClient";
+import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   const { postId } = await req.json();
@@ -9,14 +9,13 @@ export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   const user = session?.user;
 
-  console.log("🔍 Debug boost request:");
-  console.log("Session:", session);
-  console.log("User ID:", user?.id);
+  // 🔍 Supabase user ID is under 'sub'
+  const userId = session?.token?.sub || session?.user?.id;
 
-  const userId = (user as { id?: string })?.id;
+  console.log("🔍 Boosting postId:", postId);
+  console.log("🧑‍💻 User ID:", userId);
 
   if (!userId) {
-    console.error("❌ No user ID found. Boost aborted.");
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -30,6 +29,5 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  console.log("✅ Boost recorded successfully.");
   return NextResponse.json({ success: true });
 }
