@@ -8,6 +8,7 @@ export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   const user = session?.user;
 
+  // ✅ Use EMAIL not ID
   if (!user?.email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -24,8 +25,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Lookup failed" }, { status: 500 });
   }
 
+  // 2. Unboost
   if (existingBoost) {
-    // 2. Unboost
     const { error: deleteError } = await supabase
       .from("boosts")
       .delete()
@@ -36,20 +37,20 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ action: "unboosted", success: true });
-  } else {
-    // 3. Boost
-    const { error: insertError } = await supabase
-      .from("boosts")
-      .insert({
-        post_id: postId,
-        user_email: user.email,
-        boosted_at: new Date().toISOString(),
-      });
-
-    if (insertError) {
-      return NextResponse.json({ error: "Boost failed" }, { status: 500 });
-    }
-
-    return NextResponse.json({ action: "boosted", success: true });
   }
+
+  // 3. Boost
+  const { error: insertError } = await supabase
+    .from("boosts")
+    .insert({
+      post_id: postId,
+      user_email: user.email,
+      boosted_at: new Date().toISOString(),
+    });
+
+  if (insertError) {
+    return NextResponse.json({ error: "Boost failed" }, { status: 500 });
+  }
+
+  return NextResponse.json({ action: "boosted", success: true });
 }
