@@ -7,41 +7,25 @@ import { authOptions } from "@/lib/authOptions";
 export async function POST(req: Request) {
   const { postId } = await req.json();
   const session = await getServerSession(authOptions);
-
   const userEmail = session?.user?.email;
 
   if (!userEmail) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Check if already boosted
-  const { data: existingBoost, error: lookupError } = await supabase
+  const { data: existingBoost } = await supabase
     .from("boosts")
     .select("id")
     .eq("post_id", postId)
     .eq("user_email", userEmail)
     .maybeSingle();
 
-  if (lookupError) {
-    return NextResponse.json({ error: "Database lookup failed" }, { status: 500 });
-  }
-
   if (existingBoost) {
-    // Unboost
-    const { error: deleteError } = await supabase
-      .from("boosts")
-      .delete()
-      .eq("id", existingBoost.id);
-
-    if (deleteError) {
-      return NextResponse.json({ error: "Failed to unboost" }, { status: 500 });
-    }
-
+    await supabase.from("boosts").delete().eq("id", existingBoost.id);
     return NextResponse.json({ action: "unboosted", success: true });
   }
 
-  // Boost
-  const { error: insertError } = await supabase.from("boosts").insert([
+  const { error } = await supabase.from("boosts").insert([
     {
       post_id: postId,
       user_email: userEmail,
@@ -49,7 +33,7 @@ export async function POST(req: Request) {
     },
   ]);
 
-  if (insertError) {
+  if (error) {
     return NextResponse.json({ error: "Failed to boost" }, { status: 500 });
   }
 
