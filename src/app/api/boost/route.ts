@@ -7,21 +7,18 @@ export async function POST(req: Request) {
   const { postId } = await req.json();
   const session = await getServerSession(authOptions);
 
-  // 1. Get user ID (prioritize `id` after NextAuth fixes)
-  const userId = session?.user?.id || session?.user?.sub;
-  if (!userId) {
-    return NextResponse.json(
-      { error: "Unauthorized: Missing user ID" },
-      { status: 401 }
-    );
+  const user = session?.user;
+
+  if (!user?.email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // 2. Check for existing boost
+  // 1. Check for existing boost by email
   const { data: existingBoost, error: lookupError } = await supabase
     .from("boosts")
     .select("id")
     .eq("post_id", postId)
-    .eq("user_id", userId)
+    .eq("user_email", user.email)
     .maybeSingle();
 
   if (lookupError) {
@@ -31,9 +28,8 @@ export async function POST(req: Request) {
     );
   }
 
-  // 3. Toggle boost/unboost
+  // 2. Toggle logic: Unboost or Boost
   if (existingBoost) {
-    // Unboost: Delete existing record
     const { error: deleteError } = await supabase
       .from("boosts")
       .delete()
@@ -45,16 +41,18 @@ export async function POST(req: Request) {
         { status: 500 }
       );
     }
+
     return NextResponse.json({ action: "unboosted", success: true });
   } else {
-    // Boost: Insert new record
     const { error: insertError } = await supabase
       .from("boosts")
-      .insert({
-        post_id: postId,
-        user_id: userId,
-        boosted_at: new Date().toISOString(),
-      });
+      .insert([
+        {
+          post_id: postId,
+          user_email: user.email,
+          boosted_at: new Date().toISOString(),
+        },
+      ]);
 
     if (insertError) {
       return NextResponse.json(
@@ -62,6 +60,7 @@ export async function POST(req: Request) {
         { status: 500 }
       );
     }
+
     return NextResponse.json({ action: "boosted", success: true });
   }
 }
