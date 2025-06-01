@@ -1,3 +1,4 @@
+// src/app/api/boost/route.ts
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
 import { getServerSession } from "next-auth";
@@ -12,42 +13,25 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // 1. Check if already boosted
-  const { data: existingBoost, error: lookupError } = await supabase
+  const { data: existingBoost } = await supabase
     .from("boosts")
     .select("id")
     .eq("post_id", postId)
     .eq("user_email", user.email)
     .maybeSingle();
 
-  if (lookupError) {
-    return NextResponse.json({ error: "Lookup failed" }, { status: 500 });
-  }
-
-  // 2. Unboost
   if (existingBoost) {
-    const { error: deleteError } = await supabase
-      .from("boosts")
-      .delete()
-      .eq("id", existingBoost.id);
-
-    if (deleteError) {
-      return NextResponse.json({ error: "Unboost failed" }, { status: 500 });
-    }
-
+    await supabase.from("boosts").delete().eq("id", existingBoost.id);
     return NextResponse.json({ action: "unboosted", success: true });
   }
 
-  // 3. Boost
-  const { error: insertError } = await supabase
-    .from("boosts")
-    .insert({
-      post_id: postId,
-      user_email: user.email,
-      boosted_at: new Date().toISOString(),
-    });
+  const { error } = await supabase.from("boosts").insert({
+    post_id: postId,
+    user_email: user.email,
+    boosted_at: new Date().toISOString(),
+  });
 
-  if (insertError) {
+  if (error) {
     return NextResponse.json({ error: "Boost failed" }, { status: 500 });
   }
 
