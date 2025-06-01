@@ -147,12 +147,7 @@ export default function BlogPage() {
 
       <ul className="space-y-4">
         {posts.map((post) => (
-          <PostCard
-            key={post.id}
-            postId={post.id}
-            content={post.content}
-            publishedAt={post.scheduledAt}
-          />
+          <PostCard key={post.id} post={post} />
         ))}
       </ul>
     </div>
