@@ -12,6 +12,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  // 1. Check if already boosted
   const { data: existingBoost, error: lookupError } = await supabase
     .from("boosts")
     .select("id")
@@ -24,6 +25,7 @@ export async function POST(req: Request) {
   }
 
   if (existingBoost) {
+    // 2. Unboost
     const { error: deleteError } = await supabase
       .from("boosts")
       .delete()
@@ -35,6 +37,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ action: "unboosted", success: true });
   } else {
+    // 3. Boost
     const { error: insertError } = await supabase
       .from("boosts")
       .insert({
