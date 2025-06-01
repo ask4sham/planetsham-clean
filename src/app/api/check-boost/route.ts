@@ -1,19 +1,36 @@
+// /src/app/api/check-boost/route.ts
+
+import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
-import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-  const { postId } = await req.json();
-  const session = await getServerSession(authOptions);
-  const userId = session?.user?.id ?? "11111111-1111-1111-1111-111111111111";
+  try {
+    const { postId } = await req.json();
+    const session = await getServerSession(authOptions);
 
-  const { data } = await supabase
-    .from("boosts")
-    .select("id")
-    .eq("post_id", postId)
-    .eq("user_id", userId)
-    .maybeSingle();
+    const userId = session?.user?.id || session?.user?.sub;
 
-  return NextResponse.json({ boosted: !!data, success: true });
+    if (!userId) {
+      return NextResponse.json({ isBoosted: false });
+    }
+
+    const { data, error } = await supabase
+      .from("boosts")
+      .select("id")
+      .eq("post_id", postId)
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (error) {
+      console.error("❌ Error checking boost:", error.message);
+      return NextResponse.json({ isBoosted: false });
+    }
+
+    return NextResponse.json({ isBoosted: !!data });
+  } catch (err) {
+    console.error("❌ Boost check crashed:", err);
+    return NextResponse.json({ isBoosted: false });
+  }
 }

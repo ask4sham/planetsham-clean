@@ -1,0 +1,9 @@
+{
+  "cron": [
+    {
+      "path": "/api/auto-publish",
+      "schedule": "*/5 * * * *",     // every 5 minutes
+      "enabled": true
+    }
+  ]
+}

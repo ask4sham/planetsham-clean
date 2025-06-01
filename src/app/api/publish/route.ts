@@ -1,52 +1,37 @@
-import fs from "fs/promises";
-import path from "path";
+// /src/app/api/publish/route.ts
 import { NextResponse } from "next/server";
+import { supabase } from "@/lib/supabaseClient";
+import { v4 as uuidv4 } from "uuid";
 
-// ✅ Updated paths
-const scheduledPath = path.join(process.cwd(), "src/data/scheduled-posts.json");
-const publishedPath = path.join(process.cwd(), "src/data/published-posts.json");
-
-export async function POST() {
+export async function POST(req: Request) {
   try {
-    const [scheduledRaw, publishedRaw] = await Promise.all([
-      fs.readFile(scheduledPath, "utf-8"),
-      fs.readFile(publishedPath, "utf-8"),
+    const { scheduled_id, output, model = "GPT-4", tags = [] } = await req.json();
+    const id = uuidv4();
+    const now = new Date().toISOString();
+
+    // ✅ Insert into `posts`
+    const { error: insertError } = await supabase.from("posts").insert([
+      {
+        id,
+        output,
+        model,
+        created_at: now,
+        scheduled_at: now,
+        tags,
+      },
     ]);
 
-    const scheduled = JSON.parse(scheduledRaw);
-    const published = JSON.parse(publishedRaw);
-
-    const now = new Date();
-    const stillScheduled = [];
-    const newlyPublished = [];
-
-    for (const post of scheduled) {
-      const postTime = new Date(post.scheduled_at || post.scheduledAt); // handle both formats
-
-      console.log(`⏰ Now: ${now.toISOString()}`);
-      console.log(`📝 Post: ${post.content}`);
-      console.log(`📅 Scheduled for: ${postTime.toISOString()}`);
-
-      if (postTime <= now) {
-        newlyPublished.push(post);
-      } else {
-        stillScheduled.push(post);
-      }
+    if (insertError) {
+      console.error("❌ Failed to insert post:", insertError.message);
+      return NextResponse.json({ success: false, error: insertError.message }, { status: 500 });
     }
 
-    if (newlyPublished.length > 0) {
-      await Promise.all([
-        fs.writeFile(scheduledPath, JSON.stringify(stillScheduled, null, 2)),
-        fs.writeFile(publishedPath, JSON.stringify([...published, ...newlyPublished], null, 2)),
-      ]);
-    }
+    // ✅ Optionally delete from `scheduled_posts` (if needed)
+    await supabase.from("scheduled_posts").delete().eq("id", scheduled_id);
 
-    return NextResponse.json({ published: newlyPublished });
+    return NextResponse.json({ success: true, post_id: id });
   } catch (err) {
-    console.error("🚨 Auto publish error:", err);
-    return new Response(JSON.stringify({ error: "Server error" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    console.error("❌ Unexpected error:", err);
+    return NextResponse.json({ success: false, error: "Unexpected error" }, { status: 500 });
   }
 }

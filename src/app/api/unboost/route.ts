@@ -1,3 +1,4 @@
+// /src/app/api/unboost/route.ts
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
 import { getServerSession } from "next-auth";
@@ -6,8 +7,12 @@ import { authOptions } from "@/lib/authOptions";
 export async function POST(req: Request) {
   const { postId } = await req.json();
   const session = await getServerSession(authOptions);
-  const user = session?.user || {};
-  const userId = (user as { id?: string })?.id || "test-user-id";
+
+  const userId = session?.user?.id || session?.user?.sub;
+
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const { error } = await supabase
     .from("boosts")

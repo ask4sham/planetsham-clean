@@ -1,14 +1,22 @@
-import { NextRequest } from "next/server";
+// /src/app/api/posts/view/[id]/route.ts
+import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
-  const url = new URL(req.url);
-  const id = url.pathname.split("/").pop();
+  try {
+    const url = new URL(req.url);
+    const id = url.pathname.split("/").pop();
 
-  console.log("Received POST for ID:", id);
+    if (!id) {
+      return NextResponse.json({ error: "Post ID not found" }, { status: 400 });
+    }
 
-  // Add your logic here, like saving a view count or analytics event
+    console.log("✅ Received view POST for ID:", id);
 
-  return new Response(JSON.stringify({ message: `View recorded for ID: ${id}` }), {
-    status: 200,
-  });
+    // Example: You could log this to Supabase or analytics here.
+
+    return NextResponse.json({ message: `View recorded for ID: ${id}` });
+  } catch (err) {
+    console.error("❌ Error in view/[id] route:", err);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
 }
