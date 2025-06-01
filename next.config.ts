@@ -1,11 +1,12 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
   reactStrictMode: true,
   experimental: {
     serverActions: {},
   },
-  webpack: (config) => {
-    return config;
+  images: {
+    domains: ["source.unsplash.com"], // ✅ Enables Unsplash images
   },
 };
 

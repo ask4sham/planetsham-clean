@@ -1,52 +1,60 @@
-import fs from "fs/promises";
-import path from "path";
+// /src/app/api/publish/route.ts
 import { NextResponse } from "next/server";
-
-// ✅ Updated paths
-const scheduledPath = path.join(process.cwd(), "src/data/scheduled-posts.json");
-const publishedPath = path.join(process.cwd(), "src/data/published-posts.json");
+import { supabase } from "@/lib/supabaseClient";
 
 export async function POST() {
   try {
-    const [scheduledRaw, publishedRaw] = await Promise.all([
-      fs.readFile(scheduledPath, "utf-8"),
-      fs.readFile(publishedPath, "utf-8"),
-    ]);
+    const now = new Date().toISOString();
+    console.log("📅 Now is:", now);
 
-    const scheduled = JSON.parse(scheduledRaw);
-    const published = JSON.parse(publishedRaw);
+    // 1. Fetch all scheduled posts with timestamp <= now
+    const { data: duePosts, error: fetchError } = await supabase
+      .from("scheduled_posts")
+      .select("*")
+      .lte("scheduled_at", now);
 
-    const now = new Date();
-    const stillScheduled = [];
-    const newlyPublished = [];
-
-    for (const post of scheduled) {
-      const postTime = new Date(post.scheduled_at || post.scheduledAt); // handle both formats
-
-      console.log(`⏰ Now: ${now.toISOString()}`);
-      console.log(`📝 Post: ${post.content}`);
-      console.log(`📅 Scheduled for: ${postTime.toISOString()}`);
-
-      if (postTime <= now) {
-        newlyPublished.push(post);
-      } else {
-        stillScheduled.push(post);
-      }
+    if (fetchError) {
+      console.error("❌ Error fetching scheduled posts:", fetchError);
+      return NextResponse.json({ error: "Failed to fetch scheduled posts" }, { status: 500 });
     }
 
-    if (newlyPublished.length > 0) {
-      await Promise.all([
-        fs.writeFile(scheduledPath, JSON.stringify(stillScheduled, null, 2)),
-        fs.writeFile(publishedPath, JSON.stringify([...published, ...newlyPublished], null, 2)),
-      ]);
+    console.log("📂 Found due posts:", duePosts?.length || 0);
+
+    if (!duePosts || duePosts.length === 0) {
+      return NextResponse.json({ published: [] }); // nothing to publish
     }
 
-    return NextResponse.json({ published: newlyPublished });
+    // 2. Insert due posts into published_posts
+    const { error: insertError } = await supabase
+      .from("published_posts")
+      .insert(
+        duePosts.map((post) => ({
+          content: post.content,
+          published_at: post.scheduled_at,
+        }))
+      );
+
+    if (insertError) {
+      console.error("❌ Failed to insert published posts:", insertError);
+      return NextResponse.json({ error: "Insert failed" }, { status: 500 });
+    }
+
+    // 3. Delete published posts from scheduled_posts
+    const idsToDelete = duePosts.map((post) => post.id);
+    const { error: deleteError } = await supabase
+      .from("scheduled_posts")
+      .delete()
+      .in("id", idsToDelete);
+
+    if (deleteError) {
+      console.error("⚠️ Failed to delete scheduled posts:", deleteError);
+      return NextResponse.json({ error: "Partial success – not cleaned up" }, { status: 500 });
+    }
+
+    console.log("✅ Published and deleted:", idsToDelete.length);
+    return NextResponse.json({ published: duePosts });
   } catch (err) {
-    console.error("🚨 Auto publish error:", err);
-    return new Response(JSON.stringify({ error: "Server error" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    console.error("🚨 Publish API Error:", err);
+    return NextResponse.json({ error: "Unexpected error" }, { status: 500 });
   }
 }

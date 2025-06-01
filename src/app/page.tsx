@@ -1,12 +1,13 @@
 "use client";
 
+import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
-import { PostCard } from "../components/PostCard";
+import AIContextBlock from "@/components/AIContextBlock";
 
 type Post = {
-  id?: string;
   content: string;
-  published_at?: string;
+  publishedAt: string;
 };
 
 function getGreeting() {
@@ -23,22 +24,49 @@ export default function Home() {
   useEffect(() => {
     fetch("/api/posts/published")
       .then((res) => res.json())
-      .then((data) => setPosts(data || []));
+      .then((data) => setPosts(data));
   }, []);
 
   return (
-    <main className="max-w-2xl mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-2">{greeting}, welcome to PlanetSham 🌍</h1>
-      <p className="text-zinc-500 mb-6">Where AI and culture collide.</p>
+    <main className="p-6 max-w-3xl mx-auto text-white">
+      <h1 className="text-3xl font-bold mb-4">{greeting}, welcome to PlanetSham 🚀</h1>
+      <p className="mb-6 text-zinc-400">Your AI-powered hub for clarity in a chaotic world.</p>
 
-      <div className="space-y-4">
-        {posts.length === 0 ? (
-          <p className="text-center text-zinc-400">No published posts yet...</p>
-        ) : (
-          posts.map((post, i) => (
-            <PostCard key={post.id || i} content={post.content} publishedAt={post.published_at} />
-          ))
-        )}
+      {/* 👇 AI Context Engine block */}
+      <AIContextBlock />
+
+      {/* 👇 AI-Published Posts */}
+      <h2 className="text-xl font-semibold mt-10 mb-4">📝 Latest AI Posts</h2>
+      {posts.length === 0 ? (
+        <p className="text-zinc-400">No posts yet. Check back soon!</p>
+      ) : (
+        posts.map((post, index) => (
+          <div
+            key={index}
+            className="bg-zinc-900 p-4 mb-4 rounded-xl border border-zinc-800"
+          >
+            <p className="text-sm">{post.content}</p>
+            <p className="text-xs text-zinc-500 mt-2">
+              Published: {new Date(post.publishedAt).toLocaleString()}
+            </p>
+          </div>
+        ))
+      )}
+
+      {/* 👇 Navigation Links */}
+      <div className="mt-10 flex gap-4">
+        <Link
+          href="/stream"
+          className="bg-blue-600 px-4 py-2 rounded text-white text-sm"
+        >
+          🌊 Go to Stream
+        </Link>
+        <Link
+          href="/dashboard"
+          className="bg-green-600 px-4 py-2 rounded text-white text-sm"
+        >
+          ✍️ Create Content
+        </Link>
       </div>
     </main>
   );

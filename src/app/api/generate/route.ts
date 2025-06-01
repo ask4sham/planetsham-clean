@@ -1,34 +1,42 @@
-// src/app/api/generate/route.ts
+import { NextResponse } from "next/server";
+import { generateWithGPT, generateWithMistral } from "@/lib/aiClient";
+import { supabase } from "@/lib/supabaseClient";
 
-import { NextRequest, NextResponse } from "next/server";
+export async function POST(req: Request) {
+  const { prompt, model } = await req.json();
 
-export async function POST(req: NextRequest) {
-  const { prompt } = await req.json();
-
-  if (!prompt) {
-    return NextResponse.json({ error: "Missing prompt" }, { status: 400 });
-  }
+  let output = "";
 
   try {
-    const res = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+    if (model === "mistral-7b") {
+      output = await generateWithMistral(prompt);
+    } else {
+      output = await generateWithGPT(prompt);
+    }
+
+    const content = typeof output === "string" ? output : JSON.stringify(output);
+
+    // ✅ Save content and model used to Supabase
+    const { error } = await supabase.from("generated_posts").insert([
+      {
+        content,
+        prompt,
+        model_used: model === "mistral-7b" ? "Mistral" : "GPT-4",
       },
-      body: JSON.stringify({
-        model: "gpt-3.5-turbo",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.7,
-      }),
+    ]);
+
+    if (error) {
+      console.error("❌ Supabase insert error:", error.message);
+      return NextResponse.json({ error: "Failed to save post" }, { status: 500 });
+    }
+
+    return NextResponse.json({
+      output: content,
+      estimatedCost: model === "gpt-4" ? 0.03 : 0.0005,
+      tokens: model === "gpt-4" ? 800 : 400,
     });
-
-    const data = await res.json();
-    const reply = data.choices?.[0]?.message?.content;
-
-    return NextResponse.json({ reply });
   } catch (error) {
-    console.error("OpenAI error:", error);
-    return NextResponse.json({ error: "Failed to generate content" }, { status: 500 });
+    console.error("AI generation error:", error);
+    return NextResponse.json({ output: "[Error generating response]" });
   }
 }
