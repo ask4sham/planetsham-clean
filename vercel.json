@@ -5,5 +5,12 @@
       "src": "next.config.js",
       "use": "@vercel/next"
     }
+  ],
+  "cron": [
+    {
+      "path": "/api/auto-publish",
+      "schedule": "*/5 * * * *",
+      "enabled": true
+    }
   ]
 }
