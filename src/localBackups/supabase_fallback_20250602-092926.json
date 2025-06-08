@@ -1,0 +1,14 @@
+{
+  "timestamp": "2025-06-02T08:29:26.972Z",
+  "data": {
+    "error_id": "ilzhyfz",
+    "prompt": "List 3 benefits of clean energy.\n",
+    "model": "mistral-7b",
+    "truncated_content": "{\"output\":\" 1. Reduction of Greenhouse Gas Emissions: Clean energy sources like solar, wind, and hydroelectric power produce little to no greenhouse gas emissions, which contribute significantly to cl...",
+    "supabase_error": {
+      "message": "Could not find the 'token_count' column of 'generated_posts' in the schema cache",
+      "code": "PGRST204",
+      "details": null
+    }
+  }
+}

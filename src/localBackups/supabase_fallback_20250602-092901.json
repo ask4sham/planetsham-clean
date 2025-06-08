@@ -1,0 +1,14 @@
+{
+  "timestamp": "2025-06-02T08:29:01.584Z",
+  "data": {
+    "error_id": "rgvpfu2",
+    "prompt": "List 3 benefits of clean energy.\n",
+    "model": "gpt-4",
+    "truncated_content": "{\"output\":\"1. Environmental Protection: Clean energy sources such as solar, wind, and hydroelectric power produce little to no greenhouse gases or harmful pollutants, reducing their environmental impa...",
+    "supabase_error": {
+      "message": "Could not find the 'token_count' column of 'generated_posts' in the schema cache",
+      "code": "PGRST204",
+      "details": null
+    }
+  }
+}
