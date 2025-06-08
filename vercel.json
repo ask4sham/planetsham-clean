@@ -1,5 +1,4 @@
 {
-  "version": 2,
   "builds": [
     {
       "src": "next.config.js",
@@ -10,21 +9,6 @@
     {
       "path": "/api/auto-publish",
       "schedule": "*/5 * * * *",
-      "enabled": true
-    }
-  ]
-}
-{
-  "builds": [
-    {
-      "src": "next.config.js",
-      "use": "@vercel/next"
-    }
-  ],
-  "cron": [
-    {
-      "path": "/api/auto-publish",
-      "schedule": "*/5 * * * *", 
       "enabled": true
     }
   ]
