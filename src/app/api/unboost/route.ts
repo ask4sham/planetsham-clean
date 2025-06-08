@@ -7,17 +7,16 @@ import { authOptions } from "@/lib/authOptions";
 export async function POST(req: Request) {
   const { postId } = await req.json();
   const session = await getServerSession(authOptions);
+  const user = session?.user;
 
-  const userId = session?.user?.id || session?.user?.sub;
-
-  if (!userId) {
+  if (!user?.email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { error } = await supabase
     .from("boosts")
     .delete()
-    .match({ post_id: postId, user_id: userId });
+    .match({ post_id: postId, user_email: user.email });
 
   if (error) {
     console.error("❌ Unboost failed:", error.message);

@@ -1,5 +1,4 @@
 // /src/app/api/check-boost/route.ts
-
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
 import { getServerSession } from "next-auth";

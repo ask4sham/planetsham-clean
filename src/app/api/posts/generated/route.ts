@@ -2,7 +2,7 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
 
-// Normalizer
+// ✅ Normalizer to ensure clean text output
 function normalizeContent(content: any): string {
   if (typeof content === "string") return content;
   if (typeof content === "object" && content.output) return content.output;
@@ -21,7 +21,6 @@ export async function GET() {
     return NextResponse.json([], { status: 500 });
   }
 
-  // Normalize before sending
   const processed = (data ?? []).map((post) => ({
     ...post,
     content: normalizeContent(post.content),

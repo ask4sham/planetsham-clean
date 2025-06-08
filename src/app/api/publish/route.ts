@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     const id = uuidv4();
     const now = new Date().toISOString();
 
-    // ✅ Insert into `posts`
+    // ✅ Insert into `posts` table
     const { error: insertError } = await supabase.from("posts").insert([
       {
         id,
@@ -26,8 +26,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, error: insertError.message }, { status: 500 });
     }
 
-    // ✅ Optionally delete from `scheduled_posts` (if needed)
-    await supabase.from("scheduled_posts").delete().eq("id", scheduled_id);
+    // ✅ Remove it from `scheduled_posts` if it came from there
+    if (scheduled_id) {
+      await supabase.from("scheduled_posts").delete().eq("id", scheduled_id);
+    }
 
     return NextResponse.json({ success: true, post_id: id });
   } catch (err) {

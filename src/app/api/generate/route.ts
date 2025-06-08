@@ -25,17 +25,16 @@ export async function POST(req: Request) {
     const now = new Date().toISOString();
     const id = uuidv4();
 
-    // ✅ Insert into Supabase using correct schema
     const { error: insertError } = await supabase
       .from("posts")
       .insert([
         {
           id,
-          output,         // ✅ Must match column name in Supabase
+          output,
           model,
           created_at: now,
           scheduled_at: now,
-          tags: [],       // ✅ Empty array for now
+          tags: [],
         },
       ]);
 

@@ -1,12 +1,12 @@
 // /src/app/api/save-draft/route.ts
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
-import { serverLogger } from "@/lib/serverLogger"; // ✅ Use server-safe logger
+import { serverLogger } from "@/lib/serverLogger"; // ✅ Server-safe logger
 
 export async function POST(req: Request) {
   const { content } = await req.json();
 
-  // ✅ Local backup (before DB write)
+  // ✅ Optional local backup for debugging
   serverLogger.backup({ content }, "draft_save");
 
   const { error } = await supabase.from("generated_posts").insert([{ content }]);

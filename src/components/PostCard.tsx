@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { formatDistanceToNow } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
-import { getSession, useSession } from "next-auth/react"; // ✅ Added useSession
+import { useSession } from "next-auth/react";
 
 export type Post = {
   id: string;
@@ -25,20 +25,13 @@ type Props = {
 export function PostCard({ post, onUpdateId }: Props) {
   const [isBoosted, setIsBoosted] = useState(false);
   const [publishing, setPublishing] = useState(false);
-  const [sessionEmail, setSessionEmail] = useState<string | null>(null);
-  const { data: session } = useSession(); // ✅ Track session reactively
+  const { data: session } = useSession();
 
   const timeAgo = post.created_at
     ? formatDistanceToNow(new Date(post.created_at), { addSuffix: true })
     : "Just now";
 
   useEffect(() => {
-    if (session?.user?.email) {
-      setSessionEmail(session.user.email);
-    }
-
-    console.log("🧪 Auth Session:", session); // ✅ Confirm session is working
-
     const checkBoost = async () => {
       const res = await fetch("/api/check-boost", {
         method: "POST",
@@ -53,12 +46,14 @@ export function PostCard({ post, onUpdateId }: Props) {
   }, [post.id, session]);
 
   const toggleBoost = async () => {
-    if (!sessionEmail) {
+    if (!session?.user?.email) {
       alert("Boost failed: Missing user email");
       return;
     }
 
-    const res = await fetch("/api/boost", {
+    const endpoint = isBoosted ? "/api/unboost" : "/api/boost";
+
+    const res = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ postId: post.id }),
@@ -67,7 +62,7 @@ export function PostCard({ post, onUpdateId }: Props) {
     const result = await res.json();
 
     if (result.success) {
-      setIsBoosted(result.action === "boosted");
+      setIsBoosted(!isBoosted);
     } else {
       console.error("❌ Boost/unboost failed", result.error);
       alert(`Boost failed: ${result.error}`);

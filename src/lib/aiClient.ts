@@ -1,6 +1,6 @@
 // /src/lib/aiClient.ts
 
-export async function generateWithGPT(prompt: string): Promise<string> {
+export async function generateWithGPT(prompt: string): Promise<{ output: string; tokens: number }> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new Error("Missing OPENAI_API_KEY");
 
@@ -20,14 +20,17 @@ export async function generateWithGPT(prompt: string): Promise<string> {
   const data = await res.json();
 
   if (!res.ok) {
-    console.error("❌ OpenAI error:", data);
+    console.error("❌ GPT-4 error:", data);
     throw new Error(data.error?.message || "OpenAI API failed");
   }
 
-  return data.choices[0].message.content.trim();
+  return {
+    output: data.choices?.[0]?.message?.content?.trim() || "[No response from GPT-4]",
+    tokens: data.usage?.total_tokens || 0,
+  };
 }
 
-export async function generateWithMistral(prompt: string): Promise<string> {
+export async function generateWithMistral(prompt: string): Promise<{ output: string; tokens: number }> {
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) throw new Error("Missing OPENROUTER_API_KEY");
 
@@ -46,9 +49,12 @@ export async function generateWithMistral(prompt: string): Promise<string> {
   const data = await res.json();
 
   if (!res.ok) {
-    console.error("❌ Mistral (OpenRouter) error:", data);
+    console.error("❌ Mistral error:", data);
     throw new Error(data.error?.message || "OpenRouter API failed");
   }
 
-  return data.choices[0].message.content.trim();
+  return {
+    output: data.choices?.[0]?.message?.content?.trim() || "[No response from Mistral]",
+    tokens: data.usage?.total_tokens || 0,
+  };
 }
